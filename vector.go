@@ -82,6 +82,6 @@ func vector_init(x float64, y float64, z float64) Vect3 {
 	return vec
 }
 
-func piont_init(x float64, y float64, z float64) Point3 {
+func point_init(x float64, y float64, z float64) Point3 {
 	return Point3(vector_init(x, y, z))
 }

@@ -11,7 +11,7 @@ func main() {
 	viewportHeight := 2.0
 	viewportWidth := aspectRatio * viewportHeight
 	focalLength := 1.0
-	origin := piont_init(0, 0, 0)
+	origin := point_init(0, 0, 0)
 	horizontal := vector_init(viewportWidth, 0, 0)
 	vertical := vector_init(0, viewportHeight, 0)
 	lowerLeftCorner := vector_sub(Vect3(origin), vector_add(horizontal.vector_scalar_div(2), vector_add(vertical.vector_scalar_div(2), vector_init(0, 0, focalLength))))
