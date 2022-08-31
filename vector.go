@@ -14,7 +14,7 @@ type Vect3 [3]float64
 
 type Point3 Vect3
 
-func vector_opsite(vec Vect3) Vect3 {
+func (vec Vect3) vector_opsite() Vect3 {
 	var vecOp Vect3
 	vecOp[X] = -vec[X]
 	vecOp[Y] = -vec[Y]
@@ -31,7 +31,7 @@ func vector_add(vec1 Vect3, vec2 Vect3) Vect3 {
 }
 
 func vector_sub(vec1 Vect3, vec2 Vect3) Vect3 {
-	return vector_add(vec1, vector_opsite(vec2))
+	return vector_add(vec1, vec2.vector_opsite())
 }
 
 func vector_mul(vec1 Vect3, vec2 Vect3) Vect3 {
@@ -42,19 +42,19 @@ func vector_mul(vec1 Vect3, vec2 Vect3) Vect3 {
 	return vecResult
 }
 
-func vector_scalar_mul(vec Vect3, scalar float64) Vect3 {
+func (vec Vect3) vector_scalar_mul(scalar float64) Vect3 {
 	return vector_init(vec[X]*scalar, vec[Y]*scalar, vec[Z]*scalar)
 }
 
-func vector_scalar_div(vec Vect3, scalar float64) Vect3 {
-	return vector_scalar_mul(vec, 1/scalar)
+func (vec Vect3) vector_scalar_div(scalar float64) Vect3 {
+	return vec.vector_scalar_mul(1 / scalar)
 }
 
-func vector_length(vec Vect3) float64 {
-	return math.Sqrt(vector_squared_length(vec))
+func (vec Vect3) vector_length() float64 {
+	return math.Sqrt(vec.vector_squared_length())
 }
 
-func vector_squared_length(vec Vect3) float64 {
+func (vec Vect3) vector_squared_length() float64 {
 	return (vec[X] * vec[X]) + (vec[Y] * vec[Y]) + (vec[Z] * vec[Z])
 }
 
@@ -71,7 +71,7 @@ func vector_cross(vec1 Vect3, vec2 Vect3) Vect3 {
 }
 
 func vector_unit(vec Vect3) Vect3 {
-	return vector_scalar_div(vec, vector_length(vec))
+	return vec.vector_scalar_div(vec.vector_length())
 }
 
 func vector_init(x float64, y float64, z float64) Vect3 {
