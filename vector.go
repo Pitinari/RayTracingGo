@@ -14,19 +14,31 @@ type Vect3 [3]float64
 
 type Point3 Vect3
 
+func (vec Vect3) x() float64 {
+	return vec[X]
+}
+
+func (vec Vect3) y() float64 {
+	return vec[Y]
+}
+
+func (vec Vect3) z() float64 {
+	return vec[Z]
+}
+
 func (vec Vect3) vector_opsite() Vect3 {
 	var vecOp Vect3
-	vecOp[X] = -vec[X]
-	vecOp[Y] = -vec[Y]
-	vecOp[Z] = -vec[Z]
+	vecOp[X] = -vec.x()
+	vecOp[Y] = -vec.y()
+	vecOp[Z] = -vec.z()
 	return vecOp
 }
 
 func vector_add(vec1 Vect3, vec2 Vect3) Vect3 {
 	var vecResult Vect3
-	vecResult[X] = vec1[X] + vec2[X]
-	vecResult[Y] = vec1[Y] + vec2[Y]
-	vecResult[Z] = vec1[Z] + vec2[Z]
+	vecResult[X] = vec1.x() + vec2.x()
+	vecResult[Y] = vec1.y() + vec2.y()
+	vecResult[Z] = vec1.z() + vec2.z()
 	return vecResult
 }
 
@@ -36,14 +48,14 @@ func vector_sub(vec1 Vect3, vec2 Vect3) Vect3 {
 
 func vector_mul(vec1 Vect3, vec2 Vect3) Vect3 {
 	var vecResult Vect3
-	vecResult[X] = vec1[X] * vec2[X]
-	vecResult[Y] = vec1[Y] * vec2[Y]
-	vecResult[Z] = vec1[Z] * vec2[Z]
+	vecResult[X] = vec1.x() * vec2.x()
+	vecResult[Y] = vec1.y() * vec2.y()
+	vecResult[Z] = vec1.z() * vec2.z()
 	return vecResult
 }
 
 func (vec Vect3) vector_scalar_mul(scalar float64) Vect3 {
-	return vector_init(vec[X]*scalar, vec[Y]*scalar, vec[Z]*scalar)
+	return vector_init(vec.x()*scalar, vec.y()*scalar, vec.z()*scalar)
 }
 
 func (vec Vect3) vector_scalar_div(scalar float64) Vect3 {
@@ -55,19 +67,19 @@ func (vec Vect3) vector_length() float64 {
 }
 
 func (vec Vect3) vector_squared_length() float64 {
-	return (vec[X] * vec[X]) + (vec[Y] * vec[Y]) + (vec[Z] * vec[Z])
+	return (vec.x() * vec.x()) + (vec.y() * vec.y()) + (vec.z() * vec.z())
 }
 
 func vector_dot(vec1 Vect3, vec2 Vect3) float64 {
 	vec := vector_mul(vec1, vec2)
-	return vec[X] + vec[Y] + vec[Z]
+	return vec.x() + vec.y() + vec.z()
 }
 
 func vector_cross(vec1 Vect3, vec2 Vect3) Vect3 {
 	return vector_init(
-		vec1[Y]*vec2[Z]-vec1[Z]*vec2[Y],
-		vec1[Z]*vec2[X]-vec1[X]*vec2[Z],
-		vec1[X]*vec2[Y]-vec1[Y]*vec2[X])
+		vec1.y()*vec2.z()-vec1.z()*vec2.y(),
+		vec1.z()*vec2.x()-vec1.x()*vec2.z(),
+		vec1.x()*vec2.y()-vec1.y()*vec2.x())
 }
 
 func vector_unit(vec Vect3) Vect3 {
@@ -75,11 +87,7 @@ func vector_unit(vec Vect3) Vect3 {
 }
 
 func vector_init(x float64, y float64, z float64) Vect3 {
-	var vec Vect3
-	vec[X] = x
-	vec[Y] = y
-	vec[Z] = z
-	return vec
+	return Vect3{x, y, z}
 }
 
 func point_init(x float64, y float64, z float64) Point3 {
