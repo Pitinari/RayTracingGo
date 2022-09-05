@@ -19,6 +19,7 @@ func main() {
 	// Render
 
 	screen := screen_init(width, height)
+	world := ArrayOfHittables{create_sphere(point_init(0, 0, -1), 0.5), create_sphere(point_init(1, 1, -3), 0.5)}
 
 	for i := width - 1; i >= 0; i-- {
 		for j := height - 1; j >= 0; j-- {
@@ -27,7 +28,7 @@ func main() {
 			var ray Ray
 			ray.origin = origin
 			ray.direction = vector_add(lowerLeftCorner, vector_add(horizontal.vector_scalar_mul(u), vector_sub(vertical.vector_scalar_mul(v), Vect3(origin))))
-			screen[i][j] = ray.ray_color()
+			screen[i][j] = ray.ray_color(world)
 		}
 	}
 

@@ -6,15 +6,15 @@ type Ray struct {
 }
 
 type HitRecord struct {
-	p          Point3
-	normal     Vect3
-	t          float64
-	front_face bool
+	p         Point3
+	normal    Vect3
+	t         float64
+	frontFace bool
 }
 
 func (hit HitRecord) set_face_normal(r Ray) {
-	hit.front_face = (vector_dot(r.direction, hit.normal) < 0)
-	if !hit.front_face {
+	hit.frontFace = (vector_dot(r.direction, hit.normal) < 0)
+	if !hit.frontFace {
 		hit.normal = hit.normal.vector_opsite()
 	}
 }
@@ -23,11 +23,9 @@ func (ray Ray) ray_at(t float64) Point3 {
 	return Point3(vector_add(Vect3(ray.origin), ray.direction.vector_scalar_mul(t)))
 }
 
-func (ray Ray) ray_color() Color {
-	sp := create_sphere(point_init(0, 0, -1), 0.5)
+func (ray Ray) ray_color(world Hittables) Color {
 	var hit HitRecord
-	t := sp.hit(ray, 0, 5, &hit)
-	if t {
+	if world.hit_list(ray, 0, 5, &hit) {
 		return color_init(hit.normal.x()+1.0, hit.normal.y()+1.0, hit.normal.z()+1.0).color_scalar_mul(0.5)
 	}
 	unitDirection := vector_unit(ray.direction)
