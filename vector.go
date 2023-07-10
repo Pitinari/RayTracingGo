@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"math/rand"
 )
 
 const (
@@ -68,6 +69,11 @@ func (vec Vect3) vector_length() float64 {
 
 func (vec Vect3) vector_squared_length() float64 {
 	return (vec.x() * vec.x()) + (vec.y() * vec.y()) + (vec.z() * vec.z())
+}
+
+func vector_random(min float64, max float64) Vect3 {
+	delta := (max - min)
+	return vector_init(rand.Float64()*delta+min, rand.Float64()*delta+min, rand.Float64()*delta+min)
 }
 
 func vector_dot(vec1 Vect3, vec2 Vect3) float64 {

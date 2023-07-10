@@ -6,7 +6,7 @@ func color_init(r float64, g float64, b float64) Color {
 	return Color(vector_init(r, g, b))
 }
 
-func color_add(color1 Color, color2 Color) Color {
+func (color1 Color) add(color2 Color) Color {
 	return Color(vector_add(Vect3(color1), Vect3(color2)))
 }
 

@@ -1,8 +1,6 @@
 package main
 
-import (
-	"math"
-)
+import "math"
 
 type Hittable interface {
 	hit(Ray, float64, float64, *HitRecord) bool
@@ -22,21 +20,32 @@ func (world ArrayOfHittables) hit_list(ray Ray, tMin float64, tMax float64, hit 
 	for i := 0; i < len(world); i++ {
 		if world[i].hit(ray, tMin, closestSoFar, &tempRec) {
 			hitAnything = true
-			closestSoFar = tempRec.t
-			*hit = tempRec
+			if tempRec.t < closestSoFar {
+				closestSoFar = tempRec.t
+				*hit = tempRec
+			}
 		}
 	}
 
 	return hitAnything
 }
 
-type Sphere struct {
-	center Point3
-	radius float64
+type Material struct {
+	color Color
 }
 
-func create_sphere(center Point3, radius float64) Sphere {
-	return Sphere{center, radius}
+func create_material(color Color) Material {
+	return Material{color}
+}
+
+type Sphere struct {
+	center   Point3
+	radius   float64
+	material Material
+}
+
+func create_sphere(center Point3, radius float64, material Material) Sphere {
+	return Sphere{center, radius, material}
 }
 
 func (sp Sphere) hit(ray Ray, tMin float64, tMax float64, hit *HitRecord) bool {
@@ -59,7 +68,8 @@ func (sp Sphere) hit(ray Ray, tMin float64, tMax float64, hit *HitRecord) bool {
 		hit.t = root
 		hit.p = ray.ray_at(root)
 		hit.normal = vector_sub(Vect3(hit.p), Vect3(sp.center)).vector_opsite().vector_scalar_div(sp.radius)
-		hit.set_face_normal(ray)
+		// hit.set_face_normal(ray)
+		hit.material = sp.material
 		return true
 	}
 }
