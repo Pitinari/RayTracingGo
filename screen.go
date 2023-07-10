@@ -4,6 +4,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math"
 	"os"
 )
 
@@ -32,9 +33,9 @@ func write_color(pixel Color, samplesPerPixel int) Color {
 
 	// Divide the color by the number of samples.
 	scale := 1.0 / float64(samplesPerPixel)
-	r *= scale
-	g *= scale
-	b *= scale
+	r = math.Sqrt(r * scale)
+	g = math.Sqrt(g * scale)
+	b = math.Sqrt(b * scale)
 	return color_init(256.0*clamp(r, 0.0, 0.999), 256.0*clamp(g, 0.0, 0.999), 256.0*clamp(b, 0.0, 0.999))
 }
 

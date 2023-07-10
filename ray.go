@@ -31,7 +31,11 @@ func (ray Ray) ray_color(world Hittables) Color {
 	}
 	var hit HitRecord
 	if world.hit_list(ray, 0.001, 100, &hit) {
-		bouncedRay := Ray{hit.p, vector_sub(Vect3(hit.p), vector_add(hit.normal, vector_unit(vector_random(-1, 1)))), ray.remainingBounces - 1}
+		randomVect := vector_unit(vector_random(-1, 1))
+		if vector_dot(randomVect, hit.normal) > 0 {
+			randomVect = randomVect.vector_opsite()
+		}
+		bouncedRay := Ray{hit.p, vector_sub(Vect3(hit.p), vector_add(hit.normal, randomVect)), ray.remainingBounces - 1}
 		return bouncedRay.ray_color(world).color_scalar_mul(0.5)
 	}
 	unitDirection := vector_unit(ray.direction)
