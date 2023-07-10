@@ -17,9 +17,9 @@ func main() {
 	maxBounces := 50
 	screen := screen_init(width, height)
 	world := ArrayOfHittables{
-		create_sphere(point_init(0, 0, -1), 0.5, create_material(color_init(256, 0, 0))),
-		create_sphere(point_init(-1, -1, -2), 0.5, create_material(color_init(0, 256, 0))),
-		create_sphere(point_init(0, 10, -1), 9.5, create_material(color_init(0, 0, 256))),
+		create_sphere(point_init(0, 0, -1), 0.5),
+		create_sphere(point_init(-1, -1, -2), 0.5),
+		create_sphere(point_init(0, 10, -1), 9.5),
 	}
 
 	cores := 12

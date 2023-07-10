@@ -11,7 +11,6 @@ type HitRecord struct {
 	normal    Vect3
 	t         float64
 	frontFace bool
-	material  Material
 }
 
 func (hit HitRecord) set_face_normal(r Ray) {
