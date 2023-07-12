@@ -10,6 +10,10 @@ func (color1 Color) add(color2 Color) Color {
 	return Color(vector_add(Vect3(color1), Vect3(color2)))
 }
 
+func (color1 Color) mult(color2 Color) Color {
+	return Color(vector_mul(Vect3(color1), Vect3(color2)))
+}
+
 func (color Color) color_scalar_mul(t float64) Color {
 	return Color(Vect3(color).vector_scalar_mul(t))
 }

@@ -30,17 +30,14 @@ func (world ArrayOfHittables) hit_list(ray Ray, tMin float64, tMax float64, hit 
 	return hitAnything
 }
 
-type Material interface {
-	scatter(Ray, HitRecord, *Color, *Ray) bool
-}
-
 type Sphere struct {
-	center Point3
-	radius float64
+	center   Point3
+	radius   float64
+	material Material
 }
 
-func create_sphere(center Point3, radius float64) Sphere {
-	return Sphere{center, radius}
+func create_sphere(center Point3, radius float64, material Material) Sphere {
+	return Sphere{center, radius, material}
 }
 
 func (sp Sphere) hit(ray Ray, tMin float64, tMax float64, hit *HitRecord) bool {
@@ -64,6 +61,7 @@ func (sp Sphere) hit(ray Ray, tMin float64, tMax float64, hit *HitRecord) bool {
 		hit.p = ray.ray_at(root)
 		hit.normal = vector_unit(vector_sub(Vect3(hit.p), Vect3(sp.center)).vector_opsite().vector_scalar_div(sp.radius))
 		hit.set_face_normal(ray)
+		hit.material = sp.material
 		return true
 	}
 }

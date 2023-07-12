@@ -36,7 +36,7 @@ func write_color(pixel Color, samplesPerPixel int) Color {
 	r = math.Sqrt(r * scale)
 	g = math.Sqrt(g * scale)
 	b = math.Sqrt(b * scale)
-	return color_init(256.0*clamp(r, 0.0, 0.999), 256.0*clamp(g, 0.0, 0.999), 256.0*clamp(b, 0.0, 0.999))
+	return color_init(clamp(r, 0.0, 0.999), clamp(g, 0.0, 0.999), clamp(b, 0.0, 0.999))
 }
 
 func generate_image(width int, height int, screen [][]Color, filename string) {
@@ -47,9 +47,9 @@ func generate_image(width int, height int, screen [][]Color, filename string) {
 
 	for i := 0; i < width; i++ {
 		for j := 0; j < height; j++ {
-			pixelR := uint8(screen[i][j][R])
-			pixelG := uint8(screen[i][j][G])
-			pixelB := uint8(screen[i][j][B])
+			pixelR := uint8(255 * screen[i][j][R])
+			pixelG := uint8(255 * screen[i][j][G])
+			pixelB := uint8(255 * screen[i][j][B])
 			pixel := color.RGBA{pixelR, pixelG, pixelB, 255}
 			img.Set(i, j, pixel)
 		}

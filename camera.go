@@ -20,5 +20,5 @@ func camera_init() Camera {
 }
 
 func (cam Camera) get_ray(u float64, v float64, maxBounces int) Ray {
-	return Ray{cam.origin, vector_add(cam.lowerLeftCorner, vector_add(cam.horizontal.vector_scalar_mul(u), vector_sub(cam.vertical.vector_scalar_mul(v), Vect3(cam.origin)))), maxBounces}
+	return Ray{cam.origin, vector_add(cam.lowerLeftCorner, vector_add(cam.horizontal.vector_scalar_mul(u), vector_sub(cam.vertical.vector_scalar_mul(v), Vect3(cam.origin)))), maxBounces, color_init(0, 0, 0), color_init(1, 1, 1)}
 }
