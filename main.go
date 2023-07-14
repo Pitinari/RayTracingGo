@@ -8,20 +8,22 @@ import (
 
 func main() {
 	aspectRatio := 16.0 / 9.0
-	width := 400
+	width := 1920
 	height := int(float64(width) / aspectRatio)
 	cam := camera_init()
 
 	// Render
-	samplesPerPixel := 50
-	maxBounces := 30
+	samplesPerPixel := 10
+	maxBounces := 10
 	screen := screen_init(width, height)
 	world := ArrayOfHittables{
 		create_sphere(point_init(0, 0, -1), 0.5, LambertianMaterial{color_init(1, 0, 0)}),
-		create_sphere(point_init(-1, -1, -2), 0.5, LambertianMaterial{color_init(0, 1, 0)}),
-		create_sphere(point_init(0, 10, -1), 9.5, LambertianMaterial{color_init(0, 0, 1)}),
+		create_sphere(point_init(1, 0, -1), 0.5, FuzzyMaterial{color_init(0.8, 0.8, 0.8), 0.2}),
+		create_sphere(point_init(-1, 0, -1), 0.5, MirroredlightMaterial{color_init(0.3, 0.8, 0.5)}),
+		create_sphere(point_init(-1, -1, -2), 0.5, MirroredlightMaterial{color_init(0.8, 0.4, 0.2)}),
+		create_sphere(point_init(0, 100, -1), 99.5, LambertianMaterial{color_init(0, 0, 1)}),
 		// create_sphere(point_init(2, -25, -2), 15, DiffuselightMaterial{color_init(1, 1, 1)}),
-		create_sphere(point_init(-5, -8, -25), 12, DiffuselightMaterial{color_init(1, 1, 1)}),
+		// create_sphere(point_init(-5, -15, 0), 12, DiffuselightMaterial{color_init(1, 1, 1)}),
 	}
 
 	cores := 12
