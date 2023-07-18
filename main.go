@@ -8,22 +8,25 @@ import (
 
 func main() {
 	aspectRatio := 16.0 / 9.0
+	verticalFov := 90.0
 	width := 1920
+	// width = 400
 	height := int(float64(width) / aspectRatio)
-	cam := camera_init()
+	cam := camera_init(verticalFov, aspectRatio, point_init(-1, 1, 0), point_init(0, 0, 1), vector_init(0, -1, 0))
 
 	// Render
 	samplesPerPixel := 10
 	maxBounces := 10
 	screen := screen_init(width, height)
 	world := ArrayOfHittables{
-		create_sphere(point_init(0, 0, -1), 0.5, LambertianMaterial{color_init(1, 0, 0)}),
-		create_sphere(point_init(1, 0, -1), 0.5, FuzzyMaterial{color_init(0.8, 0.8, 0.8), 0.2}),
-		create_sphere(point_init(-1, 0, -1), 0.5, MirroredlightMaterial{color_init(0.3, 0.8, 0.5)}),
-		create_sphere(point_init(-1, -1, -2), 0.5, MirroredlightMaterial{color_init(0.8, 0.4, 0.2)}),
-		create_sphere(point_init(0, 100, -1), 99.5, LambertianMaterial{color_init(0, 0, 1)}),
-		// create_sphere(point_init(2, -25, -2), 15, DiffuselightMaterial{color_init(1, 1, 1)}),
-		// create_sphere(point_init(-5, -15, 0), 12, DiffuselightMaterial{color_init(1, 1, 1)}),
+		create_sphere(point_init(0, 0, 2), 0.5, MatteMaterial{0.5, color_init(1, 0, 0)}),
+		create_sphere(point_init(-1, 0, 2), 0.5, FuzzyMaterial{color_init(0, 0.4, 0.8), 0.9}),
+		create_sphere(point_init(1, 0, 2), 0.5, MirroredlightMaterial{color_init(0.3, 0.8, 0.5)}),
+		create_sphere(point_init(1, 1, 3), 0.5, MirroredlightMaterial{color_init(0.8, 0.4, 0.2)}),
+		create_sphere(point_init(0, -100, -2), 99.5, MatteMaterial{0.7, color_init(0.9, 0.3, 0.2)}),
+		create_sphere(point_init(0, -0.3, 1.2), 0.2, DielectricMaterial{color_init(1, 1, 1), 0.7}),
+		// create_sphere(point_init(2, -16, -2), 15, DiffuselightMaterial{color_init(1, 1, 1)}),
+		// create_sphere(point_init(-5, -15, 2), 12, DiffuselightMaterial{color_init(1, 1, 1)}),
 	}
 
 	cores := 12
@@ -50,8 +53,8 @@ func main() {
 		}()
 	}
 
-	for i := width - 1; i >= 0; i-- {
-		for j := height - 1; j >= 0; j-- {
+	for i := 0; i < width; i++ {
+		for j := 0; j < height; j++ {
 			channel <- Pixel{i, j}
 		}
 	}

@@ -59,7 +59,7 @@ func (sp Sphere) hit(ray Ray, tMin float64, tMax float64, hit *HitRecord) bool {
 		}
 		hit.t = root
 		hit.p = ray.ray_at(root)
-		hit.normal = vector_unit(vector_sub(Vect3(hit.p), Vect3(sp.center)).vector_opsite().vector_scalar_div(sp.radius))
+		hit.normal = vector_sub(Vect3(hit.p), Vect3(sp.center)).vector_scalar_div(sp.radius)
 		hit.set_face_normal(ray)
 		hit.material = sp.material
 		return true

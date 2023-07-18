@@ -1,6 +1,8 @@
 package main
 
-import "math"
+import (
+	"math"
+)
 
 type Ray struct {
 	origin           Point3
@@ -18,10 +20,10 @@ type HitRecord struct {
 	material  Material
 }
 
-func (hit HitRecord) set_face_normal(r Ray) {
+func (hit *HitRecord) set_face_normal(r Ray) {
 	hit.frontFace = (vector_dot(r.direction, hit.normal) < 0)
-	if !hit.frontFace {
-		hit.normal = hit.normal.vector_opsite()
+	if !(*hit).frontFace {
+		(*hit).normal = (*hit).normal.vector_opsite()
 	}
 }
 
@@ -38,8 +40,6 @@ func (ray Ray) ray_color(world Hittables) Color {
 		var scatteredRay Ray
 		if hit.material.scatter(&ray, hit, &scatteredRay) {
 			return scatteredRay.ray_color(world)
-		} else {
-			return color_init(0, 0, 0)
 		}
 	}
 	// return ray.incomingLight
