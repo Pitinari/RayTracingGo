@@ -21,7 +21,7 @@ type HitRecord struct {
 }
 
 func (hit *HitRecord) set_face_normal(r Ray) {
-	hit.frontFace = (vector_dot(r.direction, hit.normal) < 0)
+	(*hit).frontFace = (vector_dot(r.direction, hit.normal) < 0)
 	if !(*hit).frontFace {
 		(*hit).normal = (*hit).normal.vector_opsite()
 	}

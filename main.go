@@ -4,30 +4,93 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
+	"time"
 )
 
+const numberOfObjects = 200
+
+func generate_world() ArrayOfHittables {
+	var world [numberOfObjects]Hittable
+	for i := 2; i < 20; i++ {
+		radius := rand.Float64()*3 - 2
+		center := Point3{rand.Float64()*36 - 18, radius, rand.Float64()*36 - 18}
+
+		var mat Material
+		mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+		switch rand.Int() % 3 {
+		case 0:
+			mat = MirroredlightMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+		case 1:
+			mat = FuzzyMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 0.5}
+		case 2:
+			mat = DielectricMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 1.5}
+		}
+
+		t := create_sphere(center, radius, mat)
+		world[i] = t
+	}
+	for i := 20; i < 200; i++ {
+		radius := rand.Float64()*2 - 0.5
+		center := Point3{rand.Float64()*36 - 18, radius, rand.Float64()*36 - 18}
+
+		var mat Material
+		mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+		switch rand.Int() % 4 {
+		case 0:
+			mat = MirroredlightMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+		case 1:
+			mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+		case 2:
+			mat = FuzzyMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 0.5}
+		case 3:
+			mat = DielectricMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 1.5}
+		}
+
+		t := create_sphere(center, radius, mat)
+		world[i] = t
+	}
+	// for i := 0; i < numberOfObjects; i++ {
+	// 	p1 := Point3{rand.Float64()*6 - 3, rand.Float64()*6 - 3, rand.Float64()*6 - 3}
+	// 	p2 := Point3{rand.Float64()*6 - 3, rand.Float64()*6 - 3, rand.Float64()*6 - 3}
+	// 	p3 := Point3{rand.Float64()*6 - 3, rand.Float64()*6 - 3, rand.Float64()*6 - 3}
+
+	// 	var mat Material
+	// 	mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+	// 	switch rand.Int() % 3 {
+	// 	case 0:
+	// 		mat = MirroredlightMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+	// 	case 1:
+	// 		mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
+	// 	case 2:
+	// 		mat = FuzzyMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 0.5}
+	// 	}
+	// 	t := create_triangle(p1, p2, p3, mat)
+	// 	world[i] = t
+	// }
+	return world[:]
+}
+
 func main() {
+	rand.Seed(time.Now().Unix())
 	aspectRatio := 16.0 / 9.0
-	verticalFov := 90.0
+	verticalFov := 20.0
 	width := 1920
 	// width = 400
 	height := int(float64(width) / aspectRatio)
-	cam := camera_init(verticalFov, aspectRatio, point_init(-1, 1, 0), point_init(0, 0, 1), vector_init(0, -1, 0))
+	lookFrom := point_init(0, 10, 50)
+	lookAt := point_init(0, 0, 0)
+	vup := vector_init(0, -1, 0)
+	distFocus := 50.0
+	aperture := 0.1
+	cam := camera_init(verticalFov, aspectRatio, lookFrom, lookAt, vup, aperture, distFocus)
 
 	// Render
-	samplesPerPixel := 10
-	maxBounces := 10
+	samplesPerPixel := 200
+	maxBounces := 50
 	screen := screen_init(width, height)
-	world := ArrayOfHittables{
-		create_sphere(point_init(0, 0, 2), 0.5, MatteMaterial{0.5, color_init(1, 0, 0)}),
-		create_sphere(point_init(-1, 0, 2), 0.5, FuzzyMaterial{color_init(0, 0.4, 0.8), 0.9}),
-		create_sphere(point_init(1, 0, 2), 0.5, MirroredlightMaterial{color_init(0.3, 0.8, 0.5)}),
-		create_sphere(point_init(1, 1, 3), 0.5, MirroredlightMaterial{color_init(0.8, 0.4, 0.2)}),
-		create_sphere(point_init(0, -100, -2), 99.5, MatteMaterial{0.7, color_init(0.9, 0.3, 0.2)}),
-		create_sphere(point_init(0, -0.3, 1.2), 0.2, DielectricMaterial{color_init(1, 1, 1), 0.7}),
-		// create_sphere(point_init(2, -16, -2), 15, DiffuselightMaterial{color_init(1, 1, 1)}),
-		// create_sphere(point_init(-5, -15, 2), 12, DiffuselightMaterial{color_init(1, 1, 1)}),
-	}
+	world := generate_world()
+	world[0] = create_triangle(point_init(0, 0, 50), point_init(50, 0, -50), point_init(-50, 0, -50), MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}})
+	world[1] = create_sphere(point_init(0, 4, 0), 4, MirroredlightMaterial{Color{0.9, 0.9, 0.9}})
 
 	cores := 12
 
@@ -40,6 +103,10 @@ func main() {
 		go func() {
 			fmt.Println("Thread init")
 			for pixel := range channel {
+				advance := len(channel)
+				if advance%1000 == 0 {
+					fmt.Println(advance, "items left")
+				}
 				col := color_init(0, 0, 0)
 				for s := 0; s < samplesPerPixel; s++ {
 					u := (float64(pixel.x) + rand.Float64()) / (float64(width) - 1.0)

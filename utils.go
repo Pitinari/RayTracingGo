@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"math"
+	"math/rand"
+)
 
 func clamp(x float64, min float64, max float64) float64 {
 	if x < min {
@@ -19,4 +22,13 @@ func smoothstep(x float64, min float64, max float64) float64 {
 
 func degrees_to_radians(degrees float64) float64 {
 	return degrees * math.Pi / 180
+}
+
+func random_in_unit_disk() Vect3 {
+	for {
+		p := Vect3{rand.Float64()*2 - 1, rand.Float64()*2 - 1, 0}
+		if p.vector_squared_length() < 1 {
+			return p
+		}
+	}
 }
