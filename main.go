@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 )
 
@@ -13,7 +12,7 @@ func generate_world() ArrayOfHittables {
 	var world [numberOfObjects]Hittable
 	for i := 2; i < 20; i++ {
 		radius := rand.Float64()*3 - 2
-		center := Point3{rand.Float64()*36 - 18, radius, rand.Float64()*36 - 18}
+		center := Point3{rand.Float64()*100 - 50, radius, rand.Float64()*100 - 50}
 
 		var mat Material
 		mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
@@ -41,9 +40,9 @@ func generate_world() ArrayOfHittables {
 		case 1:
 			mat = MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}}
 		case 2:
-			mat = FuzzyMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 0.5}
+			mat = FuzzyMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, rand.Float64()}
 		case 3:
-			mat = DielectricMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, 1.5}
+			mat = DielectricMaterial{Color{rand.Float64(), rand.Float64(), rand.Float64()}, rand.Float64() + 0.5}
 		}
 
 		t := create_sphere(center, radius, mat)
@@ -75,7 +74,7 @@ func main() {
 	aspectRatio := 16.0 / 9.0
 	verticalFov := 20.0
 	width := 1920
-	// width = 400
+	width = 3840
 	height := int(float64(width) / aspectRatio)
 	lookFrom := point_init(0, 10, 50)
 	lookAt := point_init(0, 0, 0)
@@ -85,49 +84,64 @@ func main() {
 	cam := camera_init(verticalFov, aspectRatio, lookFrom, lookAt, vup, aperture, distFocus)
 
 	// Render
-	samplesPerPixel := 200
+	samplesPerPixel := 500
 	maxBounces := 50
-	screen := screen_init(width, height)
 	world := generate_world()
-	world[0] = create_triangle(point_init(0, 0, 50), point_init(50, 0, -50), point_init(-50, 0, -50), MatteMaterial{1, Color{rand.Float64(), rand.Float64(), rand.Float64()}})
-	world[1] = create_sphere(point_init(0, 4, 0), 4, MirroredlightMaterial{Color{0.9, 0.9, 0.9}})
+	world[0] = create_triangle(point_init(0, 0, 4000), point_init(4000, 0, -4000), point_init(-4000, 0, -4000), MatteMaterial{1, Color{0.7, 0.7, 0.8}})
+	world[1] = create_sphere(point_init(0, 4, 0), 4, MirroredlightMaterial{Color{1, 1, 1}})
 
 	cores := 12
 
-	channel := make(chan Pixel, width*height)
-
-	wg := &sync.WaitGroup{}
-	wg.Add(cores)
+	channelSamples := make(chan int, samplesPerPixel)
+	channelResults := make(chan [][]Color, samplesPerPixel)
 
 	for i := 0; i < cores; i++ {
-		go func() {
-			fmt.Println("Thread init")
-			for pixel := range channel {
-				advance := len(channel)
-				if advance%1000 == 0 {
-					fmt.Println(advance, "items left")
+		go func(id int) {
+			fmt.Println("Thread init", id)
+			for sample := range channelSamples {
+				screen := screen_init(width, height)
+				fmt.Println("Processing sample: ", sample)
+				for y := 0; y < height; y++ {
+					for x := 0; x < width; x++ {
+						u := (float64(x) + rand.Float64()) / (float64(width) - 1.0)
+						v := (float64(y) + rand.Float64()) / (float64(height) - 1.0)
+						ray := cam.get_ray(u, v, maxBounces)
+						screen[x][y] = ray.ray_color(world)
+					}
 				}
-				col := color_init(0, 0, 0)
-				for s := 0; s < samplesPerPixel; s++ {
-					u := (float64(pixel.x) + rand.Float64()) / (float64(width) - 1.0)
-					v := (float64(pixel.y) + rand.Float64()) / (float64(height) - 1.0)
-					ray := cam.get_ray(u, v, maxBounces)
-					col = col.add(ray.ray_color(world))
-				}
-				screen[pixel.x][pixel.y] = write_color(col, samplesPerPixel)
+				channelResults <- screen
+				fmt.Println("Processed sample: ", sample)
 			}
-			wg.Done()
-		}()
+		}(i)
 	}
 
-	for i := 0; i < width; i++ {
-		for j := 0; j < height; j++ {
-			channel <- Pixel{i, j}
+	for i := 1; i <= samplesPerPixel; i++ {
+		channelSamples <- i
+	}
+	close(channelSamples)
+	collectedScreen := screen_init(width, height)
+	samplesProcessed := 0
+
+	for processedScreen := range channelResults {
+		for x := 0; x < width; x++ {
+			for y := 0; y < height; y++ {
+				currentR := collectedScreen[x][y][R]
+				currentG := collectedScreen[x][y][G]
+				currentB := collectedScreen[x][y][B]
+
+				incomingR := processedScreen[x][y][R]
+				incomingG := processedScreen[x][y][G]
+				incomingB := processedScreen[x][y][B]
+
+				collectedScreen[x][y][R] = currentR - (currentR / float64(samplesProcessed+1)) + (incomingR / float64(samplesProcessed+1))
+				collectedScreen[x][y][G] = currentG - (currentG / float64(samplesProcessed+1)) + (incomingG / float64(samplesProcessed+1))
+				collectedScreen[x][y][B] = currentB - (currentB / float64(samplesProcessed+1)) + (incomingB / float64(samplesProcessed+1))
+			}
+		}
+		generate_image(width, height, collectedScreen, "image.png")
+		samplesProcessed++
+		if samplesProcessed == samplesPerPixel {
+			close(channelResults)
 		}
 	}
-	close(channel)
-	fmt.Println(len(channel))
-	wg.Wait()
-
-	generate_image(width, height, screen, "image.png")
 }
